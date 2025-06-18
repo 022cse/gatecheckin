@@ -76,11 +76,10 @@
     }
   </style>
 
-  <!-- Replace with your GitHub raw URLs -->
+  <!-- Module Import from raw.githubusercontent.com to fix MIME issue -->
   <script type="module">
-    import QrScanner from './js/qr-scanner.min.js';
-QrScanner.WORKER_PATH = './js/qr-scanner-worker.min.js';
-
+    import QrScanner from 'https://raw.githubusercontent.com/022cse/gatecheckin/main/js/qr-scanner.umd.min.js';
+    QrScanner.WORKER_PATH = 'https://raw.githubusercontent.com/022cse/gatecheckin/main/js/qr-scanner-worker.min.js';
 
     const guestCodes = {
       "L-f98z-9h67": "Lerang",
@@ -165,7 +164,7 @@ QrScanner.WORKER_PATH = './js/qr-scanner-worker.min.js';
 </head>
 <body>
   <div class="container">
-    <h2> Guest Check-in</h2>
+    <h2>Guest Check-in</h2>
     <p>Scan a QR code or enter the guest code manually below:</p>
 
     <input type="text" id="codeInput" placeholder="Enter guest code" />
@@ -174,11 +173,9 @@ QrScanner.WORKER_PATH = './js/qr-scanner-worker.min.js';
     <p id="status"></p>
 
     <div id="checkedInList">
-      <h3> Checked-In Guests</h3>
+      <h3>Checked-In Guests</h3>
     </div>
   </div>
 </body>
 </html>
-
-
 
