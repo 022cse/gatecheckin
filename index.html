@@ -53,6 +53,10 @@
       border-radius: 5px;
       border-left: 4px solid green;
     }
+    .source-label {
+      font-size: 12px;
+      color: #aaa;
+    }
   </style>
 </head>
 <body>
@@ -102,8 +106,7 @@
       "A-6c67-4d8b": "Angela"
     };
 
-    // Store checked in guests locally (in-memory)
-    const checkedInGuests = [];
+    const apiUrl = "https://script.google.com/macros/s/AKfycbwHGVrfugvuaruqeVVZnNZkwIyqZEVHGkqU-TwCOpGFWY-wzxLQZaSQKZe_GFJSo_M/exec";
 
     function verify() {
       const code = document.getElementById("codeInput").value.trim();
@@ -111,40 +114,54 @@
       const guestName = guestCodes[code];
 
       if (guestName) {
-        if (checkedInGuests.some(g => g.code === code)) {
-          status.textContent = `⚠️ ${guestName} is already checked in`;
-          status.style.color = "orange";
-        } else {
-          status.textContent = `✅ Welcome, ${guestName}`;
-          status.style.color = "lightgreen";
-          addCheckedInGuest(guestName, code);
-        }
+        status.textContent = ✅ Welcome, ${guestName};
+        status.style.color = "lightgreen";
+        logCheckIn(guestName, code);
       } else {
         status.textContent = "❌ Invalid Code";
         status.style.color = "red";
       }
-
-      document.getElementById("codeInput").value = "";
     }
 
-    function addCheckedInGuest(name, code) {
-      const now = new Date();
-      checkedInGuests.push({
+    function logCheckIn(name, code) {
+      const entry = {
         name,
         code,
-        timestamp: now.toISOString()
-      });
-      renderCheckedInList();
+        method: "manual"
+      };
+
+      fetch(apiUrl, {
+        method: "POST",
+        body: JSON.stringify(entry),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(res => res.text())
+      .then(() => loadPreviousCheckins()) // Refresh list
+      .catch(err => console.error("Failed to save:", err));
     }
 
-    function renderCheckedInList() {
-      const list = document.getElementById("checkedInList");
-      list.innerHTML = "<h3>Checked-In Guests</h3>";
-      checkedInGuests.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "entry";
-        div.textContent = `✔ ${item.name} (${item.code}) — ${new Date(item.timestamp).toLocaleTimeString()}`;
-        list.appendChild(div);
+    function loadPreviousCheckins() {
+      fetch(apiUrl)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById("checkedInList");
+          list.innerHTML = "<h3>Checked-In Guests</h3>";
+          data.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "entry";
+            div.innerHTML = ✔ ${item.name} (${item.code}) — ${new Date(item.timestamp).toLocaleTimeString()}<div class="source-label">via ${item.method}</div>;
+            list.appendChild(div);
+          });
+        })
+        .catch(err => console.error("Error loading previous check-ins:", err));
+    }
+
+    window.onload = loadPreviousCheckins;
+  </script>
+</body>
+</html>
 
 
 
