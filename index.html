@@ -69,6 +69,22 @@
       input, button { font-size: 14px; }
     }
   </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Guest Check-in</h2>
+    <p>Enter the guest code below:</p>
+
+    <input type="text" id="codeInput" placeholder="Enter guest code" />
+    <button onclick="verify()">Check In</button>
+
+    <p id="status"></p>
+
+    <div id="checkedInList">
+      <h3>Checked-In Guests</h3>
+    </div>
+  </div>
+
   <script>
     const guestCodes = {
       "L-f98z-9h67": "Lerang",
@@ -104,51 +120,64 @@
       "A-6c67-4d8b": "Angela"
     };
 
-    const checkedIn = new Set();
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwHGVrfugvuaruqeVVZnNZkwIyqZEVHGkqU-TwCOpGFWY-wzxLQZaSQKZe_GFJSo_M/exec"; // Replace with your Apps Script Web App URL
 
-    function verify(source) {
+    function verify() {
       const code = document.getElementById("codeInput").value.trim();
       const status = document.getElementById("status");
       const guestName = guestCodes[code];
 
-      if (guestName && !checkedIn.has(code)) {
-        checkedIn.add(code);
+      if (guestName) {
         status.textContent = `✅ Welcome, ${guestName}`;
         status.style.color = "lightgreen";
-        logCheckIn(guestName, source);
-      } else if (checkedIn.has(code)) {
-        status.textContent = `⚠️ ${guestName} already checked in`;
-        status.style.color = "orange";
+        logCheckIn(guestName, code);
       } else {
         status.textContent = "❌ Invalid Code";
         status.style.color = "red";
       }
     }
 
-    function logCheckIn(name, source) {
-      const list = document.getElementById("checkedInList");
-      const div = document.createElement("div");
-      div.className = "entry";
-      div.innerHTML = `✔ ${name} — ${new Date().toLocaleTimeString()}<div class="source-label">via manual entry</div>`;
-      list.appendChild(div);
+    function logCheckIn(name, code) {
+      const entry = {
+        name: name,
+        code: code,
+        method: "manual"
+      };
+
+      fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify(entry),
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(response => response.text())
+      .then(result => {
+        const div = document.createElement("div");
+        div.className = "entry";
+        div.innerHTML = `✔ ${name} — ${new Date().toLocaleTimeString()}<div class="source-label">Saved ✅</div>`;
+        document.getElementById("checkedInList").appendChild(div);
+      })
+      .catch(error => {
+        console.error("Error saving to Google Sheets:", error);
+      });
     }
+
+    // Load all previous check-ins from Google Sheets
+    window.onload = function () {
+      fetch(scriptURL)
+        .then(res => res.json())
+        .then(data => {
+          data.forEach(entry => {
+            const div = document.createElement("div");
+            div.className = "entry";
+            div.innerHTML = `✔ ${entry.name} — ${new Date(entry.timestamp).toLocaleTimeString()}<div class="source-label">via ${entry.method}</div>`;
+            document.getElementById("checkedInList").appendChild(div);
+          });
+        })
+        .catch(error => console.error("Error loading previous check-ins:", error));
+    };
   </script>
-</head>
-<body>
-  <div class="container">
-    <h2>Guest Check-in</h2>
-    <p>Enter the guest code manually below:</p>
-
-    <input type="text" id="codeInput" placeholder="Enter guest code" />
-    <button onclick="verify('manual')">Check In</button>
-
-    <p id="status"></p>
-
-    <div id="checkedInList">
-      <h3>Checked-In Guests</h3>
-    </div>
-  </div>
 </body>
 </html>
+
 
 
