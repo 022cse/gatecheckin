@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gate Verification + Check-in</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #eee;
+      padding: 20px;
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px 0;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background-color: red;
+      color: white;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    #checkedInList {
+      margin-top: 30px;
+      text-align: left;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .entry {
+      padding: 8px;
+      border-bottom: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <h2>Gate Check-in</h2>
+  <p>Scan QR or enter code:</p>
+  <input type="text" id="codeInput" placeholder="Enter guest code">
+  <button onclick="verify()">Check In</button>
+  <p id="status"></p>
+
+  <div id="checkedInList"><h3>✅ Checked-In Guests</h3></div>
+
+  <script>
+    const guestCodes = {
+      "L-f98z-9h67": "Lerang",
+      "K-be6a-0984": "Koketso",
+      "A-a62d-7c41": "Andile",
+      "L-d1a7-4fb3": "Lame",
+      "T-8a70-ec1d": "Tirelo",
+      "T-7342-b01b": "Tefo",
+      "R-481e-688b": "Refilwe",
+      "E-2dca-42a7": "Ewetse",
+      "N-2097-8c5f": "Nonofo",
+      "M-86bd-ea09": "Michelle",
+      "R-441e-d6c0": "Rona",
+      "A-cc28-b90f": "Atsile",
+      "A-f190-3c77": "Atla",
+      "L-b29a-b13e": "Lefhika",
+      "P-b15c-df31": "Palesa",
+      "P-621e-34ac": "Paris",
+      "L-5039-bdfa": "Lungile",
+      "O-f49a-8153": "Okaile",
+      "U-33af-92be": "Uyapo",
+      "S-18ae-a0c4": "Sesha",
+      "T-db53-5494": "Tlhongbotho",
+      "T-91fb-a263": "Thabang",
+      "N-731f-49c2": "Nako",
+      "T-ea25-39bb": "Thembi",
+      "M-5e9c-7a02": "Mphathi",
+      "M-38b7-f10e": "Michael",
+      "G-Ra59-7Tx2": "Gorata",
+      "C-23ec-41ec": "Chawada",
+      "R-11b8-4335": "Reneilwe",
+      "S-d24c-4689": "Setso",
+      "A-6c67-4d8b": "Angela"
+    };
+
+    const checkedIn = new Set();
+
+    function verify() {
+      const code = document.getElementById("codeInput").value.trim();
+      const status = document.getElementById("status");
+      const guestName = guestCodes[code];
+
+      if (guestName && !checkedIn.has(code)) {
+        checkedIn.add(code);
+        status.textContent = "✅ Welcome, " + guestName;
+        status.style.color = "lightgreen";
+        logCheckIn(guestName);
+      } else if (checkedIn.has(code)) {
+        status.textContent = "⚠️ " + guestName + " already checked in";
+        status.style.color = "orange";
+      } else {
+        status.textContent = "❌ Invalid Code";
+        status.style.color = "red";
+      }
+    }
+
+    function logCheckIn(name) {
+      const list = document.getElementById("checkedInList");
+      const div = document.createElement("div");
+      div.className = "entry";
+      div.textContent = "✔ " + name + " - " + new Date().toLocaleTimeString();
+      list.appendChild(div);
+    }
+  </script>
+</body>
+</html>
