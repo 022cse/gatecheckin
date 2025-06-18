@@ -1,62 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Gate Verification + Check-in</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Lerang Party Check-in</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       background-color: #111;
       color: #eee;
+      margin: 0;
       padding: 20px;
-      text-align: center;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      border: 2px solid red;
+      border-radius: 10px;
+      background-color: #1a1a1a;
+      padding: 20px;
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+      color: white;
     }
     input, button {
-      padding: 10px;
-      font-size: 16px;
+      width: 100%;
+      padding: 12px;
       margin: 10px 0;
-      width: 90%;
-      max-width: 400px;
+      font-size: 16px;
       border-radius: 5px;
       border: none;
+    }
+    input {
+      background-color: #222;
+      color: #fff;
+      border: 1px solid #444;
     }
     button {
       background-color: red;
       color: white;
       cursor: pointer;
     }
-    #status {
-      margin-top: 20px;
-      font-size: 20px;
-      font-weight: bold;
+    button:hover {
+      background-color: darkred;
     }
-    #reader {
-      width: 100%;
-      max-width: 400px;
-      margin: 0 auto;
+    #status {
+      font-weight: bold;
+      margin: 10px 0;
     }
     #checkedInList {
       margin-top: 30px;
-      text-align: left;
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
     }
     .entry {
-      padding: 8px;
-      border-bottom: 1px solid #333;
+      background-color: #222;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border-left: 4px solid green;
+    }
+    @media (max-width: 400px) {
+      h1 {
+        font-size: 20px;
+      }
+      input, button {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
-  <h2>Gate Check-in</h2>
-  <p>Scan QR or enter code:</p>
-  <input type="text" id="codeInput" placeholder="Enter guest code">
-  <button onclick="verify()">Check In</button>
-  <p id="status"></p>
+  <div class="container">
+    <h2>Guest Check-in</h2>
+    <p>Enter or scan guest code below:</p>
 
-  <div id="checkedInList"><h3>✅ Checked-In Guests</h3></div>
+    <input type="text" id="codeInput" placeholder="Enter guest code" />
+    <button onclick="verify()">Check In</button>
+
+    <p id="status"></p>
+
+    <div id="checkedInList">
+      <h3>Checked-In Guests</h3>
+    </div>
+  </div>
 
   <script>
     const guestCodes = {
@@ -102,11 +131,11 @@
 
       if (guestName && !checkedIn.has(code)) {
         checkedIn.add(code);
-        status.textContent = "✅ Welcome, " + guestName;
+        status.textContent = `✅ Welcome, ${guestName}`;
         status.style.color = "lightgreen";
         logCheckIn(guestName);
       } else if (checkedIn.has(code)) {
-        status.textContent = "⚠️ " + guestName + " already checked in";
+        status.textContent = `⚠️ ${guestName} already checked in`;
         status.style.color = "orange";
       } else {
         status.textContent = "❌ Invalid Code";
@@ -118,9 +147,11 @@
       const list = document.getElementById("checkedInList");
       const div = document.createElement("div");
       div.className = "entry";
-      div.textContent = "✔ " + name + " - " + new Date().toLocaleTimeString();
+      div.textContent = `✔ ${name} — ${new Date().toLocaleTimeString()}`;
       list.appendChild(div);
     }
   </script>
 </body>
 </html>
+
+
