@@ -74,6 +74,7 @@
       input, button { font-size: 14px; }
     }
   </style>
+  <!-- Load QR Scanner Library -->
   <script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
 </head>
 <body>
@@ -157,31 +158,43 @@
       list.appendChild(div);
     }
 
-    // Setup QR scanner
-    const html5QrCode = new Html5Qrcode("reader");
-    const config = { fps: 10, qrbox: 250 };
+    window.onload = function () {
+      if (typeof Html5Qrcode === "undefined") {
+        console.error("❌ Html5Qrcode library not loaded.");
+        document.getElementById("status").textContent = "❌ QR scanner failed to load.";
+        return;
+      }
 
-    Html5Qrcode.getCameras().then(devices => {
-      if (devices && devices.length) {
+      const html5QrCode = new Html5Qrcode("reader");
+      const config = { fps: 10, qrbox: 250 };
+
+      Html5Qrcode.getCameras().then(devices => {
+        if (devices.length === 0) {
+          console.error("❌ No cameras found");
+          document.getElementById("status").textContent = "❌ No cameras detected.";
+          return;
+        }
+
         html5QrCode.start(
           devices[0].id,
           config,
           qrCodeMessage => {
+            console.log("✅ QR Code detected:", qrCodeMessage);
             document.getElementById("codeInput").value = qrCodeMessage;
             verify("scan");
-            html5QrCode.stop(); // stop after first successful scan
           },
-          error => { /* ignore scan errors */ }
-        );
-      }
-    }).catch(err => {
-      document.getElementById("status").textContent = "📵 Camera not accessible.";
-      document.getElementById("status").style.color = "orange";
-    });
-  </script>
-</body>
-</html>
-
+          error => {
+            console.log("Scanning error:", error);
+          }
+        ).catch(err => {
+          console.error("Start error:", err);
+          document.getElementById("status").textContent = "❌ Could not start QR scanner.";
+        });
+      }).catch(err => {
+        console.error("Camera access error:", err);
+        document.getElementById("status").textContent = "❌ Camera access denied or unavailable.";
+      });
+    };
   </script>
 </body>
 </html>
