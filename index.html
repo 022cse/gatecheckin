@@ -2,12 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Lerang Party Check-in</title>
+  <title>Lerang Guest Check-in</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', sans-serif;
       background-color: #111;
@@ -52,6 +50,11 @@
       font-weight: bold;
       margin: 10px 0;
     }
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      margin: 20px auto;
+    }
     #checkedInList {
       margin-top: 30px;
     }
@@ -62,28 +65,31 @@
       border-radius: 5px;
       border-left: 4px solid green;
     }
+    .source-label {
+      font-size: 12px;
+      color: #aaa;
+    }
     @media (max-width: 400px) {
-      h1 {
-        font-size: 20px;
-      }
-      input, button {
-        font-size: 14px;
-      }
+      h1 { font-size: 20px; }
+      input, button { font-size: 14px; }
     }
   </style>
+  <script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <h2>Guest Check-in</h2>
-    <p>Enter or scan guest code below:</p>
+    <h2>🎉 Guest Check-in</h2>
+    <p>Scan a QR code or enter the guest code manually below:</p>
+
+    <div id="reader"></div>
 
     <input type="text" id="codeInput" placeholder="Enter guest code" />
-    <button onclick="verify()">Check In</button>
+    <button onclick="verify('manual')">Check In</button>
 
     <p id="status"></p>
 
     <div id="checkedInList">
-      <h3>Checked-In Guests</h3>
+      <h3>✅ Checked-In Guests</h3>
     </div>
   </div>
 
@@ -124,7 +130,7 @@
 
     const checkedIn = new Set();
 
-    function verify() {
+    function verify(source) {
       const code = document.getElementById("codeInput").value.trim();
       const status = document.getElementById("status");
       const guestName = guestCodes[code];
@@ -133,7 +139,7 @@
         checkedIn.add(code);
         status.textContent = `✅ Welcome, ${guestName}`;
         status.style.color = "lightgreen";
-        logCheckIn(guestName);
+        logCheckIn(guestName, source);
       } else if (checkedIn.has(code)) {
         status.textContent = `⚠️ ${guestName} already checked in`;
         status.style.color = "orange";
@@ -143,13 +149,39 @@
       }
     }
 
-    function logCheckIn(name) {
+    function logCheckIn(name, source) {
       const list = document.getElementById("checkedInList");
       const div = document.createElement("div");
       div.className = "entry";
-      div.textContent = `✔ ${name} — ${new Date().toLocaleTimeString()}`;
+      div.innerHTML = `✔ ${name} — ${new Date().toLocaleTimeString()}<div class="source-label">via ${source === 'scan' ? 'QR scan' : 'manual entry'}</div>`;
       list.appendChild(div);
     }
+
+    // Setup QR scanner
+    const html5QrCode = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: 250 };
+
+    Html5Qrcode.getCameras().then(devices => {
+      if (devices && devices.length) {
+        html5QrCode.start(
+          devices[0].id,
+          config,
+          qrCodeMessage => {
+            document.getElementById("codeInput").value = qrCodeMessage;
+            verify("scan");
+            html5QrCode.stop(); // stop after first successful scan
+          },
+          error => { /* ignore scan errors */ }
+        );
+      }
+    }).catch(err => {
+      document.getElementById("status").textContent = "📵 Camera not accessible.";
+      document.getElementById("status").style.color = "orange";
+    });
+  </script>
+</body>
+</html>
+
   </script>
 </body>
 </html>
