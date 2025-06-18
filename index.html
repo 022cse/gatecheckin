@@ -50,10 +50,11 @@
       font-weight: bold;
       margin: 10px 0;
     }
-    #reader {
+    video {
       width: 100%;
-      max-width: 400px;
-      margin: 20px auto;
+      border: 2px solid red;
+      border-radius: 10px;
+      margin-top: 10px;
     }
     #checkedInList {
       margin-top: 30px;
@@ -74,28 +75,12 @@
       input, button { font-size: 14px; }
     }
   </style>
-  <!-- Load QR Scanner Library -->
-  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
-</head>
-<body>
-  <div class="container">
-    <h2>🎉 Guest Check-in</h2>
-    <p>Scan a QR code or enter the guest code manually below:</p>
+  <!-- Replace with your GitHub raw URLs -->
+  <script type="module">
+    import QrScanner from 'https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/REPO_NAME/main/qr-scanner.umd.min.js';
+    QrScanner.WORKER_PATH = 'https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/REPO_NAME/main/qr-scanner-worker.min.js';
 
-    <div id="reader"></div>
-
-    <input type="text" id="codeInput" placeholder="Enter guest code" />
-    <button onclick="verify('manual')">Check In</button>
-
-    <p id="status"></p>
-
-    <div id="checkedInList">
-      <h3>✅ Checked-In Guests</h3>
-    </div>
-  </div>
-
-  <script>
     const guestCodes = {
       "L-f98z-9h67": "Lerang",
       "K-be6a-0984": "Koketso",
@@ -159,45 +144,40 @@
       list.appendChild(div);
     }
 
-    window.onload = function () {
-      if (typeof Html5Qrcode === "undefined") {
-        console.error("❌ Html5Qrcode library not loaded.");
-        document.getElementById("status").textContent = "❌ QR scanner failed to load.";
-        return;
-      }
+    window.addEventListener('DOMContentLoaded', () => {
+      const videoElem = document.createElement("video");
+      videoElem.setAttribute("id", "video");
+      document.querySelector(".container").insertBefore(videoElem, document.getElementById("codeInput"));
 
-      const html5QrCode = new Html5Qrcode("reader");
-      const config = { fps: 10, qrbox: 250 };
+      const scanner = new QrScanner(videoElem, result => {
+        document.getElementById("codeInput").value = result;
+        verify("scan");
+        scanner.stop();
+      }, { highlightScanRegion: true });
 
-      Html5Qrcode.getCameras().then(devices => {
-        if (devices.length === 0) {
-          console.error("❌ No cameras found");
-          document.getElementById("status").textContent = "❌ No cameras detected.";
-          return;
-        }
-
-        html5QrCode.start(
-          devices[0].id,
-          config,
-          qrCodeMessage => {
-            console.log("✅ QR Code detected:", qrCodeMessage);
-            document.getElementById("codeInput").value = qrCodeMessage;
-            verify("scan");
-          },
-          error => {
-            console.log("Scanning error:", error);
-          }
-        ).catch(err => {
-          console.error("Start error:", err);
-          document.getElementById("status").textContent = "❌ Could not start QR scanner.";
-        });
-      }).catch(err => {
-        console.error("Camera access error:", err);
-        document.getElementById("status").textContent = "❌ Camera access denied or unavailable.";
+      scanner.start().catch(e => {
+        document.getElementById("status").textContent = "❌ Failed to access camera.";
+        console.error(e);
       });
-    };
+    });
   </script>
+</head>
+<body>
+  <div class="container">
+    <h2> Guest Check-in</h2>
+    <p>Scan a QR code or enter the guest code manually below:</p>
+
+    <input type="text" id="codeInput" placeholder="Enter guest code" />
+    <button onclick="verify('manual')">Check In</button>
+
+    <p id="status"></p>
+
+    <div id="checkedInList">
+      <h3> Checked-In Guests</h3>
+    </div>
+  </div>
 </body>
 </html>
+
 
 
