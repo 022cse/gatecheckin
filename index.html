@@ -50,12 +50,6 @@
       font-weight: bold;
       margin: 10px 0;
     }
-    video {
-      width: 100%;
-      border: 2px solid red;
-      border-radius: 10px;
-      margin-top: 10px;
-    }
     #checkedInList {
       margin-top: 30px;
     }
@@ -75,12 +69,7 @@
       input, button { font-size: 14px; }
     }
   </style>
-
-  <!-- Module Import from raw.githubusercontent.com to fix MIME issue -->
-  <script type="module">
-    import QrScanner from 'https://raw.githubusercontent.com/022cse/gatecheckin/main/js/qr-scanner.umd.min.js';
-    QrScanner.WORKER_PATH = 'https://raw.githubusercontent.com/022cse/gatecheckin/main/js/qr-scanner-worker.min.js';
-
+  <script>
     const guestCodes = {
       "L-f98z-9h67": "Lerang",
       "K-be6a-0984": "Koketso",
@@ -140,32 +129,15 @@
       const list = document.getElementById("checkedInList");
       const div = document.createElement("div");
       div.className = "entry";
-      div.innerHTML = `✔ ${name} — ${new Date().toLocaleTimeString()}<div class="source-label">via ${source === 'scan' ? 'QR scan' : 'manual entry'}</div>`;
+      div.innerHTML = `✔ ${name} — ${new Date().toLocaleTimeString()}<div class="source-label">via manual entry</div>`;
       list.appendChild(div);
     }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const videoElem = document.createElement("video");
-      videoElem.setAttribute("id", "video");
-      document.querySelector(".container").insertBefore(videoElem, document.getElementById("codeInput"));
-
-      const scanner = new QrScanner(videoElem, result => {
-        document.getElementById("codeInput").value = result;
-        verify("scan");
-        scanner.stop();
-      }, { highlightScanRegion: true });
-
-      scanner.start().catch(e => {
-        document.getElementById("status").textContent = "❌ Failed to access camera.";
-        console.error(e);
-      });
-    });
   </script>
 </head>
 <body>
   <div class="container">
     <h2>Guest Check-in</h2>
-    <p>Scan a QR code or enter the guest code manually below:</p>
+    <p>Enter the guest code manually below:</p>
 
     <input type="text" id="codeInput" placeholder="Enter guest code" />
     <button onclick="verify('manual')">Check In</button>
@@ -178,4 +150,5 @@
   </div>
 </body>
 </html>
+
 
